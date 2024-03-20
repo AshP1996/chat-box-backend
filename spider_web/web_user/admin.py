@@ -1,17 +1,23 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from django.utils import timezone  # Import timezone module
 from .models import CustomUser
 
 class CustomUserAdmin(UserAdmin):
     model = CustomUser
+    list_display = ['email', 'first_name', 'last_name', 'date_of_birth', 'phone_number', 'is_staff', 'is_active']
+    fieldsets = (
+        (None, {'fields': ('email', 'password')}),
+        ('Personal Info', {'fields': ('first_name', 'last_name', 'date_of_birth', 'phone_number')}),
+        ('Permissions', {'fields': ('is_staff', 'is_active')}),
+        ('Important dates', {'fields': ('last_login', 'created_at')}),
+    )
+    add_fieldsets = (
+        (None, {
+            'classes': ('wide',),
+            'fields': ('email', 'password1', 'password2', 'first_name', 'last_name', 'date_of_birth', 'phone_number', 'is_staff', 'is_active')}
+        ),
+    )
+    search_fields = ['email', 'first_name', 'last_name']
     ordering = ['email']
-    list_display = ['email', 'first_name', 'last_name', 'is_active', 'is_staff']
-
-    # Override init method to set related names
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        CustomUser._meta.get_field('groups').remote_field.related_name = 'customuser_groups'
-        CustomUser._meta.get_field('user_permissions').remote_field.related_name = 'customuser_user_permissions'
 
 admin.site.register(CustomUser, CustomUserAdmin)
